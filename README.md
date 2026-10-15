@@ -12,6 +12,9 @@ Grounds offline; multiplayer over System Link (Versus, Horde and campaign co-op)
 friend's code, or on a server; keyboard, mouse and controller; mods. See [docs/STATUS.md](docs/STATUS.md) for what is
 verified and what is next, and [CHANGELOG.md](CHANGELOG.md).
 
+Sister project: the [Gears of War 3 PC port](https://github.com/KiltedKernel/gears-of-war-3-pc-port), which shares
+this port's runtime, setup, launcher and multiplayer.
+
 ## Install
 
 1. Get the source: download the release's source archive and extract it to a folder of your choice, or clone the

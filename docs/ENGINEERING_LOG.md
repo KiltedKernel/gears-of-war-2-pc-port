@@ -5,7 +5,7 @@ working tree (gow2-port); from 2026-10-14 the port is rebuilt on the runtime, la
 Gears of War 3 port, which itself started from this one.
 
 
-Player-owned disc: `Gears of War 2 [RF][MEX].iso` (user confirmed it is a dump of their own disc). Dev copies of
+Player-owned disc: a dump of the developer's own retail disc. Dev copies of
 game data live in `D:\gow2-decomp\` (never committed, never shipped). Generated C++ (`ppc/`) is produced on the
 player's PC from their own XEX; the repo holds tools, config and runtime only.
 
@@ -390,7 +390,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
     recomp.sh now reaches the game folder through the git-ignored junction game_link/ (works across drives).
   - Worse: the old recomp.sh then synced the empty output and deleted all of ppc/. It now replaces ppc/ only after a
     successful run that wrote ppc_func_mapping.cpp.
-  - PowerShell Test-Path reads [RF][MEX] in the ISO name as a wildcard: use -LiteralPath.
+  - PowerShell Test-Path reads square brackets in an ISO name as a wildcard: use -LiteralPath.
   - Git bash turns mklink's /J into a path: use New-Item -ItemType Junction.
   - setup_xenia.sh rewrote version.h on every run, rebuilding part of Xenia: it now writes only on change.
 - .gitignore: shots/ (game screenshots), save_backups/, game_link/, run*.txt, recomp*.log.
