@@ -57,7 +57,7 @@ $band.Location = New-Object System.Drawing.Point(0, 0); $band.Size = New-Object 
 $band.BackColor = [System.Drawing.Color]::FromArgb(24, 24, 24)
 $form.Controls.Add($band)
 $brand = New-Object System.Windows.Forms.Label
-$brand.Text = 'GEARS OF WAR 3'; $brand.ForeColor = [System.Drawing.Color]::White
+$brand.Text = 'GEARS OF WAR 2'; $brand.ForeColor = [System.Drawing.Color]::White
 $brand.Font = New-Object System.Drawing.Font('Segoe UI', [single]15, [System.Drawing.FontStyle]::Bold)
 $brand.Location = New-Object System.Drawing.Point(18, 8); $brand.Size = New-Object System.Drawing.Size(400, 30)
 $band.Controls.Add($brand)

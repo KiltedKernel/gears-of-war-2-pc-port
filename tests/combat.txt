@@ -1,0 +1,20 @@
+# title -> Solo Campaign -> Continue (A on the first entry) -> loads the last checkpoint
+55 key 0D 250     # Start
+66 key 20 250     # A: Solo Campaign
+76 key 20 250     # A: Continue / Resume
+86 key 20 250     # A: confirm
+96 key 20 250     # A: any prompt
+100 capture
+102 key 57 2500        # W: walk forward with the squad
+106 mouse 400 0 400    # look right
+108 key 02 3000        # right mouse = LT: aim
+109 key 01 1500        # left mouse = RT: fire while aiming
+113 key 52 250         # R = RB: reload
+117 key 44 1500        # D: strafe right toward the wall
+119 key 20 250         # Space = A: take cover
+122 key 01 1000        # fire from cover (blind fire)
+125 key 57 1500        # W
+128 key 20 250         # A: roadie run / leave cover
+130 key 51 250         # Q = Y: look at point of interest
+134 mouse -800 0 400   # look left
+136 key 57 3000        # W

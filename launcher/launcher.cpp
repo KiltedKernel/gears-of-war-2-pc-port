@@ -152,14 +152,21 @@ std::vector<Option> MakeOptions()
         { 0, Kind::Combo, "display", "antialiasing", "none", L"Anti-aliasing", L"Post-process anti-aliasing (smooths jagged edges, slightly softer image).",
           { { L"Off", "none" }, { L"FXAA", "fxaa" }, { L"FXAA (extreme)", "fxaa_extreme" } } },
 
+        { 1, Kind::Combo, "graphics", "shadow_resolution", "1280", L"Shadow quality", L"Shadow map resolution: sharper shadows on characters and the world.",
+          { { L"Console (800)", "0" }, { L"High (1280)", "1280" }, { L"Ultra (1536)", "1536" } } },
+        { 1, Kind::Check, "graphics", "self_shadowing", "false", L"Character self-shadowing", L"Characters cast shadows onto themselves (off on the console)." },
         { 1, Kind::Check, "graphics", "anisotropic_16x", "true", L"16x anisotropic filtering", L"Sharper textures at angles (floors, walls)." },
+        { 1, Kind::Check, "graphics", "texture_streaming_fix", "false", L"Larger texture streaming pool", L"Less texture pop-in; recommended with high render resolutions." },
+        { 1, Kind::Check, "graphics", "black_shading_fix", "true", L"Fix black character shading", L"Removes the dark, blocky shading the console's tiled rendering leaves on characters." },
         { 1, Kind::Check, "graphics", "xenos_sample_positions", "true", L"Accurate MSAA sample positions", L"Fewer broken edges and stray triangles." },
         { 1, Kind::Check, "graphics", "shader_cache", "true", L"Shader cache", L"Keeps compiled shaders on disk, so effects stutter only the first time you see them." },
 
         { 2, Kind::Check, "graphics", "motion_blur", "true", L"Motion blur", L"Blur from fast camera and object movement." },
         { 2, Kind::Check, "graphics", "depth_of_field", "true", L"Depth of field", L"Blurs what is out of focus (aiming, cutscenes)." },
+        { 2, Kind::Check, "graphics", "bloom", "true", L"Bloom", L"The glow around bright light; also part of the game's colour grading." },
         { 2, Kind::Check, "graphics", "lens_flares", "true", L"Lens flares", L"Flares from bright lights." },
-        { 2, Kind::Check, "graphics", "ambient_occlusion", "true", L"Ambient occlusion", L"Soft contact shadows in corners and under objects." },
+        { 2, Kind::Check, "graphics", "distortion", "true", L"Heat haze and distortion", L"Refraction effects (heat, explosions, water)." },
+        { 2, Kind::Check, "graphics", "fog_volumes", "true", L"Fog volumes", L"Local fog and dust in the air." },
 
         { 3, Kind::Slider, "input", "mouse_sensitivity", "1.0", L"Mouse sensitivity", L"Mouse look speed (1.0 = default).", {}, 0.1, 5.0, 0.05, L"%.2f" },
         { 3, Kind::Check, "input", "invert_mouse_y", "false", L"Invert mouse Y axis", L"Moving the mouse up looks down." },
@@ -765,6 +772,15 @@ bool QueryHub(const sockaddr_in& to, vnet::Info& info, int& pingMs, int timeoutM
             pingMs = int(GetTickCount64() - start);
             ok = true;
         }
+        else if (n >= int(sizeof(vnet::Reject)) && vnet::Valid(buf, n) && ((vnet::Header*)buf)->type == vnet::kReject)
+        {
+            // the other game's server or game (its Reject says which): listed, with the reason
+            info = {};
+            vnet::SetText(info.name, std::string("Not for ") + vnet::kGameName);
+            vnet::SetText(info.motd, vnet::Text(((vnet::Reject*)buf)->reason));
+            pingMs = int(GetTickCount64() - start);
+            ok = true;
+        }
     }
     closesocket(s);
     return ok;
@@ -1305,7 +1321,7 @@ void MakeTabBrush()
 void Build()
 {
     const int left = 28, labelW = 220, ctrlX = 260, ctrlW = 320, top = 118, rowH = 50;
-    Make(L"STATIC", L"GEARS OF WAR 3", SS_LEFT | WS_VISIBLE, 24, 14, 500, 34, 0, g_fontTitle);
+    Make(L"STATIC", L"GEARS OF WAR 2", SS_LEFT | WS_VISIBLE, 24, 14, 500, 34, 0, g_fontTitle);
     Make(L"STATIC", L"PC port " GOW2_VERSION L" \x2014 options, mods and Play", SS_LEFT | WS_VISIBLE, 26, 48, 400, 20, 0, g_fontSmall);
     g_tabs = Make(WC_TABCONTROLW, L"", WS_VISIBLE | WS_CLIPSIBLINGS, 16, 76, 608, 494, ID_TABS, g_font);
     for (int i = 0; i < kPageCount; i++)

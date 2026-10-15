@@ -50,7 +50,7 @@ struct NtFile final : KernelObject
 static std::string Lower(std::string s) { for (auto& c : s) c = (char)tolower((unsigned char)c); return s; }
 
 // guest path -> host path ("" if not mapped)
-// skip the intro logos: the startup movie Open_Logos (Gears 3; Bink 2 "KB2a", frame counts at the same offsets) opens normally but
+// skip the intro logos: the startup movies EpicLogo and MGSLogo ([FullScreenMovie] StartupMovies) open normally but
 // their Bink headers read as 1 frame long, so each ends at once (a missing file crashes the movie player).
 // LoadingMovie (the loading screen) and the story cinematics stay.
 static bool SkippedMovie(const std::string& guest)
@@ -58,7 +58,7 @@ static bool SkippedMovie(const std::string& guest)
     if (!::g_skipIntroArg && !settings::Get().skipIntroMovies) return false;
     std::string l = guest;
     for (char& c : l) c = char(tolower((unsigned char)c));
-    for (const char* m : { "\\movies\\open_logos.bik" })   // Gears of War 2: one Bink 2 movie with every logo
+    for (const char* m : { "\\movies\\epiclogo.bik", "\\movies\\mgslogo.bik" })
         if (l.size() >= strlen(m) && l.compare(l.size() - strlen(m), std::string::npos, m) == 0) return true;
     return false;
 }

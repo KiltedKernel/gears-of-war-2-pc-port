@@ -1,0 +1,4 @@
+55 key 0D 250
+64 key 52 250
+72 pad 0001 300   # d-pad up on a virtual controller
+80 key 28 250    # arrow down on the keyboard

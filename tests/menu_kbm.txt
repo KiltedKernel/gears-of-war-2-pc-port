@@ -1,0 +1,3 @@
+# title -> main menu with the keyboard: keyboard prompts
+55 key 0D 250     # Enter = Start
+68 key 28 200     # down arrow: Co-op Campaign

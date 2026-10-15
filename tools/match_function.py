@@ -1,4 +1,4 @@
-"""Find a Gears of War 2 function in Gears of War 2 (or any XEX pair) by shape: the sequence of instruction kinds
+"""Find a function of one XEX in another (Gears of War 2 <-> Gears of War 3, or any XEX pair) by shape: the sequence of instruction kinds
 (primary opcode + extended opcode, registers and immediates ignored) compared with difflib over every .pdata function
 of similar length in the other image.
 usage: match_function.py old.bin <old address hex> new.bin [top=5]"""

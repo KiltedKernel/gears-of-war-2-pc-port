@@ -177,18 +177,26 @@ namespace
     }
 
     // repack page 0: kept glyphs (deduplicated by rect) + icons, shelves of decreasing height, 1 texel apart
-    bool Build(const Strip& strip)
+    // compact[c]: use the icon's compact version (strip code c + 256, the button's own size) instead of the full one
+    bool Build(const Strip& strip, const std::vector<bool>& compact, bool quiet)
     {
         const Image original = Decode(g_originalTex);
         struct Item { int w, h; const Rgba* src; uint32_t pitch; std::vector<int> chars; };
         std::vector<Item> items;
         std::vector<bool> replaced(kGlyphs, false);
+        std::vector<const std::array<int, 5>*> chosen(kGlyphs, nullptr);
         for (const auto& g : strip.glyphs)
         {
-            if (g[0] < 0 || g[0] >= kGlyphs || g_originalGlyphs[g[0]].texture != 0) continue;
-            replaced[g[0]] = true;
-            items.push_back({ g[3], g[4], strip.px.data() + size_t(g[2]) * strip.w + g[1], strip.w, { g[0] } });
+            const int c = g[0] & 255;
+            if (g[0] < 0 || g[0] >= 2 * kGlyphs || g_originalGlyphs[c].texture != 0) continue;
+            if ((g[0] >= kGlyphs) == compact[c] || !chosen[c]) chosen[c] = &g;
         }
+        for (int c = 0; c < kGlyphs; c++)
+            if (const auto* g = chosen[c])
+            {
+                replaced[c] = true;
+                items.push_back({ (*g)[3], (*g)[4], strip.px.data() + size_t((*g)[2]) * strip.w + (*g)[1], strip.w, { c } });
+            }
         for (int c = 0; c < kGlyphs; c++)
         {
             const Glyph& o = g_originalGlyphs[c];
@@ -212,7 +220,7 @@ namespace
                 return it.h <= r.h && r.used + (r.used ? 1 : 0) + it.w <= int(kSize); });
             if (row == rows.end())
             {
-                if (top + it.h > int(kSize)) { LOGFN_WARNING("prompts: keyboard glyphs do not fit the font page"); return false; }
+                if (top + it.h > int(kSize)) { if (!quiet) LOGFN_WARNING("prompts: keyboard glyphs do not fit the font page"); return false; }
                 rows.push_back({ top, it.h, 0 });
                 top += it.h + 1;
                 row = rows.end() - 1;
@@ -315,7 +323,20 @@ namespace
                 g_table = FindTable();
                 if (!g_table) { static int tries = 0; if (++tries == 50) LOGFN_WARNING("prompts: font table not found"); continue; }
                 for (int c = 0; c < kGlyphs; c++) g_originalGlyphs[c] = ReadGlyph(g_table + c * 24);
-                if (!Build(strip)) { g_failed = true; continue; }
+                // the page is nearly full: the widest icons fall back to their compact versions until all fit
+                std::vector<bool> compact(kGlyphs, false);
+                bool ok = false;
+                for (int round = 0; round <= kGlyphs && !(ok = Build(strip, compact, true)); round++)
+                {
+                    int widest = -1, w = 0;
+                    for (const auto& g : strip.glyphs)
+                        if (g[0] >= 0 && g[0] < kGlyphs && !compact[g[0]] && g[3] > w) { w = g[3]; widest = g[0]; }
+                    if (widest < 0) break;
+                    compact[widest] = true;
+                }
+                if (!ok) { Build(strip, compact, false); g_failed = true; continue; }
+                const auto n = std::count(compact.begin(), compact.end(), true);
+                if (n) LOGFN("prompts: {} icons in their compact size (the font page is full)", n);
                 g_built = true;
                 LOGFN("prompts: font table at {:08X}, page 0 at physical {:08X}", g_table, g_page.load());
             }

@@ -1,6 +1,6 @@
 // Mods' configuration fragments merged into the game's packed configuration (see mods.h, docs/MODDING.md).
 //
-// Gears 3 reads every .ini from GearGame\CookedXbox360\Coalesced_<LANG>.bin: big-endian int32 file count; per file
+// Gears 2 reads every .ini from GearGame\CookedXenon\Coalesced_<LANG>.bin: big-endian int32 file count; per file
 // a string name and int32 section count; per section a string name and int32 key count; per key two strings. A
 // string is int32 n then n ANSI bytes (n > 0) or -n UTF-16LE units (n < 0), NUL included; the game's own file uses
 // UTF-16 throughout, and so does the merged file.

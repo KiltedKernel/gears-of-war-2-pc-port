@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 {
     vnet::HubOptions o;
     o.server = true;
-    o.name = "Gears 3 server";
+    o.name = "Gears 2 server";
     o.lanDiscovery = false;     // reached by its address, not found on a LAN (that is for players' own games)
     bool useUpnp = true;
     for (int i = 1; i < argc; i++)

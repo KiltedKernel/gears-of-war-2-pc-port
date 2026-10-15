@@ -1,6 +1,6 @@
 """Minimal reader for UE3 packages: little-endian PC cooks (e.g. Gears of War: Reloaded: file version 835, licensee
 76, LZ4-compressed chunks with compression flag 0x20) and big-endian Xbox 360 cooks once decompressed with
-tools/xpack (Gears of War 2: version 828; Gears of War 2: 575; Gears of War 1: 374, mostly uncompressed). The byte order comes from the tag. Decompresses, parses the name/import/export tables and can save an
+tools/xpack (Gears of War 3: version 828; Gears of War 2: 575; Gears of War 1: 374, mostly uncompressed). The byte order comes from the tag. Decompresses, parses the name/import/export tables and can save an
 export's raw data. Offline analysis of the player's own installed files: reads them, never writes next to them.
 usage: python -P upk.py <package.upk> [summary|names|imports|exports [filter]|save <export index> <out>]"""
 import struct, sys

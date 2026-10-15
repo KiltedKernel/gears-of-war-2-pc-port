@@ -8,7 +8,7 @@ labels: bug
 <!-- What you did, what you expected, and what you saw instead. Screenshots help. -->
 
 **Where**
-<!-- Setup / campaign (act and chapter) / Horde / Versus / Beast / multiplayer / launcher / a mod -->
+<!-- Setup / campaign (act and chapter) / Horde / Training Grounds / multiplayer / launcher / a mod -->
 
 **Version and PC**
 - Port version (VERSION file, or the launcher's title):

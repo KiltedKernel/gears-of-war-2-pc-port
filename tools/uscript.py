@@ -1,4 +1,4 @@
-"""UnrealScript bytecode of cooked Gears of War 2 (engine 828) packages as readable pseudo-code (offline).
+"""UnrealScript bytecode of cooked UE3 packages (Gears of War 3, engine 828; other versions untested) as readable pseudo-code (offline).
 
 A Function/State export: +12 Next, +16 SuperStruct, +20 Children, +24 script size in memory, +28 script size on disk,
 then the script, then (functions) iNative u16, OperPrecedence byte, FunctionFlags u32. In memory an object reference

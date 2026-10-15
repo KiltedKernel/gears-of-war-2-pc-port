@@ -9,7 +9,7 @@
 
 Locations (override with options or environment variables):
   --mods     the game's mods folder       (GOW2_MODS,    default build/mods next to tools/)
-  --g3       Gears 3's disc files         (GOW2_DISC,    default ../gow2-decomp/disc)
+  --game     Gears 2's disc files         (GOW2_DISC,    default ../gow2-decomp/disc)
 """
 import re, argparse, os, subprocess, sys
 
@@ -30,7 +30,7 @@ def local_game_disc():
 
 def paths(args):
     mods = args.mods or os.environ.get('GOW2_MODS') or os.path.join(REPO, 'build', 'mods')
-    g3 = args.g3 or os.environ.get('GOW2_DISC') or local_game_disc() or os.path.join(REPO, '..', 'gow2-decomp', 'disc')
+    g3 = args.game or os.environ.get('GOW2_DISC') or local_game_disc() or os.path.join(REPO, '..', 'gow2-decomp', 'disc')
     return os.path.abspath(mods), os.path.abspath(g3)
 
 
@@ -101,15 +101,15 @@ def cmd_new(args):
     mods_dir, _ = paths(args)
     folder = os.path.join(mods_dir, args.folder)
     if os.path.exists(os.path.join(folder, 'mod.ini')): raise SystemExit(f'{folder} already has a mod.ini')
-    os.makedirs(os.path.join(folder, 'GearGame', 'CookedXbox360'), exist_ok=True)
+    os.makedirs(os.path.join(folder, 'GearGame', 'CookedXenon'), exist_ok=True)
     with open(os.path.join(folder, 'mod.ini'), 'w', encoding='utf-8') as f:
         f.write('; A mod for the Gears of War 2 PC port (docs/MODDING.md). Files under this folder replace the\n'
-                '; game\'s files at the same path (GearGame\\CookedXbox360\\<package>.xxx ...); new packages are added.\n'
+                '; game\'s files at the same path (GearGame\\CookedXenon\\<package>.xxx ...); new packages are added.\n'
                 '[mod]\n'
                 f'name = {args.name or args.folder}\nversion = 0.1\nauthor = {args.author or ""}\n'
                 'description = \n'
                 f'priority = {args.priority}\nenabled = true\n')
-    print(f'created {folder} (put files under {os.path.join(folder, "GearGame", "CookedXbox360")})')
+    print(f'created {folder} (put files under {os.path.join(folder, "GearGame", "CookedXenon")})')
 
 
 def check_fragment(path):
@@ -145,7 +145,7 @@ def cmd_check(args):
             try:
                 p = upk.Package(path)
                 note = f'package version {p.version}, {len(p.exports)} exports'
-                if p.version != 828: note += '  <- not a Gears 3 package (version 828)'; problems += 1
+                if p.version != 575: note += '  <- not a Gears 2 package (version 575)'; problems += 1
             except Exception as ex:
                 note = f'cannot be read: {ex}'; problems += 1
         elif low.startswith('config\\'):
@@ -227,7 +227,7 @@ def cmd_install(args):
 
 def main():
     ap = argparse.ArgumentParser(prog='modtool', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--mods'); ap.add_argument('--g3')
+    ap.add_argument('--mods'); ap.add_argument('--game')
     sub = ap.add_subparsers(dest='cmd', required=True)
     sub.add_parser('mods', help='list installed mods, their files and conflicts')
     n = sub.add_parser('new-mod', help='create a mod folder with a mod.ini')

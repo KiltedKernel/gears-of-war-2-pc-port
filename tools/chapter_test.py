@@ -1,14 +1,14 @@
 """Campaign coverage: boot each chapter directly and check it loads and plays.
 
 usage: python tools/chapter_test.py [chapters] [--seconds N] [--out DIR]
-  chapters: "0-30" (default), "7", "7,8,14-18"
+  chapters: "0-28" (default; Gears 2: ChapterLevelNames 0-28 in GearCampaignChapterData), "7", "7,8,14-18"
 For each chapter the game starts on GearGame_P?game=geargamecontent.GearGameSP?chapter=N (GOW2_COMMAND_LINE: the URL
 the menu's Select Chapter builds, without the menus) with a fresh test profile and no mods (tools/playtest.ps1), plays
 generic input (walk, look around, fire, cover) and takes screenshots. Per chapter it records: crash or not, the
 persistent map that loaded, the game's frame rate (frames it presents through VdSwap, logged every 10 s; capped by
 frame_rate in build\gow2.ini; the first 50 s, loading, are left out), black or frozen screenshots. Output: <out>/chNN.png (contact sheet),
 <out>/chNN/ (full-size
-screenshots), <out>/report.md and report.json. A chapter takes about --seconds (default 150): all 31 take about 80 minutes.
+screenshots), <out>/report.md and report.json. A chapter takes about --seconds (default 150): all 29 take about 75 minutes.
 """
 import argparse, json, os, re, shutil, subprocess, sys, time
 from PIL import Image, ImageDraw, ImageStat
@@ -29,12 +29,12 @@ def parse_chapters(text):
 
 
 def input_script(seconds):
-    """generic play: from 30 s, every 12 s skip a cutscene (Start skips one; in play it pauses, and B closes the pause
-    menu again), walk forward, turn, fire, take cover"""
+    """generic play: from 30 s, every 12 s skip a cutscene (Back: "Skip Cinematic" in Gears 2; Start would only pause
+    it), walk forward, turn, fire, take cover"""
     lines = ['# chapter_test.py: generic play (skip cutscenes, walk, look, fire, cover)', '28 capture']
     t = 30.0
     while t < seconds - 8:
-        lines += [f'{t:.1f} pad 0010 200', f'{t + 1.5:.1f} pad 2000 150',
+        lines += [f'{t:.1f} pad 0020 200',
                   f'{t + 3:.1f} key 57 3000', f'{t + 6.5:.1f} mouse 400 0 600', f'{t + 8:.1f} trig R 900',
                   f'{t + 9.5:.1f} key 20 150', f'{t + 10.5:.1f} mouse -250 40 500']
         t += 12
@@ -82,7 +82,7 @@ def run_chapter(n, seconds, out):
     log = open(os.path.join(BUILD, 'gow2.log'), encoding='utf8', errors='replace').read()
     shutil.copy(os.path.join(BUILD, 'gow2.log'), os.path.join(out, f'ch{n:02d}.log'))
     maps = []
-    for m in re.findall(r'NtCreateFile: \S+\\CookedXbox360\\(\w+_P)\.xxx', log, re.I):
+    for m in re.findall(r'NtCreateFile: \S+\\Cooked(?:Xbox360|Xenon)\\(\w+_P)\.xxx', log, re.I):
         if m.lower() not in [x.lower() for x in maps] and m.lower() != 'geargame_p': maps.append(m)
     fps = [float(x) for x in re.findall(r'video: ([\d.]+) fps', log)][5:]   # one line per 10 s: from 50 s on (past loading)
     crash = [l for l in log.splitlines() if 'CRASH' in l][:3]
@@ -123,7 +123,7 @@ def write_report(results, out):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('chapters', nargs='?', default='0-30')
+    ap.add_argument('chapters', nargs='?', default="0-28")
     ap.add_argument('--seconds', type=int, default=150)
     ap.add_argument('--out', default=os.path.join(BUILD, 'coverage'))
     a = ap.parse_args()

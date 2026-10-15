@@ -1,4 +1,4 @@
-// Kernel/XAM imports Gears of War 2 uses that Gears of War 2 did not (behaviour after Xenia's implementations).
+// Kernel/XAM imports the Gears of War 3 port added (Gears of War 3 uses them; kept here for completeness: behaviour after Xenia's implementations).
 #include <stdafx.h>
 #include <cpu/ppc_context.h>
 #include "function.h"

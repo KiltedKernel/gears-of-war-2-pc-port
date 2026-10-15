@@ -207,7 +207,9 @@ namespace
                 hid::SetMenuMode(inMenu); wasMenu = inMenu; pendingClick = 0;
                 LOGFN("mouse menus: {} ({})", inMenu ? "menu" : "gameplay", inMenu ? ue3::ObjectName(menu) : std::string("-"));
             }
-            if (!inMenu) continue;
+            if (!inMenu) { hid::TakeMenuEscape(); continue; }
+            // Esc in a menu: B (back), wherever the cursor is
+            if (hid::TakeMenuEscape()) Press(BTN_B);
 
             const hid::MenuMouse m = hid::PollMenuMouse();
             const uint64_t now = GetTickCount64();

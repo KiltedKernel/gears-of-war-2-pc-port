@@ -22,12 +22,12 @@ namespace mods
     };
 
     const std::vector<Mod>& List();                        // every mod found, enabled or not, in load order
-    // the file a mod provides for a game-relative path ("GearGame\CookedXbox360\X.xxx"), or empty;
+    // the file a mod provides for a game-relative path ("GearGame\CookedXenon\X.xxx"), or empty;
     // TOC files get the merged TOC (built once, from disc + mods)
     std::filesystem::path Resolve(const std::string& relative, const std::filesystem::path& gameRoot);
 
     // configuration fragments (kernel/mod_config.cpp): a mod's config\*.ini, merged into the packed configuration
-    // GearGame\CookedXbox360\Coalesced_<LANG>.bin (the disc's, or a mod's whole file) when the game first asks for a file
+    // GearGame\CookedXenon\Coalesced_<LANG>.bin (the disc's, or a mod's whole file) when the game first asks for a file
     namespace config
     {
         std::vector<std::filesystem::path> Fragments(const Mod& m);

@@ -152,7 +152,9 @@ namespace
                            digest[9], digest[10], digest[11], digest[12], digest[13], digest[14], digest[15]);
     }
 
-    // the disc's TOC with every mod file under GearGame\CookedXbox360 listed by its size and MD5 (replaced or added)
+    // the disc's TOC with every mod file under GearGame\CookedXenon listed by its size and MD5 (replaced or added).
+    // Gears 2's lines: "<size> <uncompressed size, 0 = stored> <disc offset> ..\GearGame\CookedXenon\<file> <md5>"; a
+    // mod's file is stored as it is (0) and keeps the disc file's offset (a new file: 0)
     std::filesystem::path MergedToc(State& s, const std::string& rel, const std::filesystem::path& gameRoot)
     {
         if (auto it = s.tocs.find(rel); it != s.tocs.end()) return it->second;
@@ -164,18 +166,18 @@ namespace
         }
         std::map<std::string, std::filesystem::path> modded;   // lower-case file name -> the winning mod's file
         for (const auto& [frel, path] : s.files)
-            if (frel.starts_with("geargame\\cookedxbox360\\")) modded[Lower(path.filename().string())] = path;
+            if (frel.starts_with("geargame\\cookedxenon\\")) modded[Lower(path.filename().string())] = path;
         std::set<std::string> seen;
         for (auto& line : lines)
         {
             std::istringstream ls(line);
-            std::string size, zero, path, md5;
-            if (!(ls >> size >> zero >> path >> md5)) continue;
+            std::string size, uncompressed, offset, path, md5;
+            if (!(ls >> size >> uncompressed >> offset >> path >> md5)) continue;
             const std::string name = Lower(path.substr(path.find_last_of('\\') + 1));
             if (auto it = modded.find(name); it != modded.end())
             {
                 uint64_t n = 0; const std::string h = Md5Hex(it->second, n);
-                line = fmt::format("{} 0 {} {}", n, path, h);
+                line = fmt::format("{} 0 {} {} {}", n, offset, path, h);
                 seen.insert(name);
             }
         }
@@ -185,7 +187,7 @@ namespace
             if (!seen.count(name) && rel == "geargame\\xbox360toc.txt")
             {
                 uint64_t n = 0; const std::string h = Md5Hex(file, n);
-                added.push_back(fmt::format("{} 0 ..\\GearGame\\CookedXbox360\\{} {}", n, file.filename().string(), h));
+                added.push_back(fmt::format("{} 0 0 ..\\GearGame\\CookedXenon\\{} {}", n, file.filename().string(), h));
             }
         lines.insert(lines.begin(), added.begin(), added.end());
         const auto out = GetUserPath() / "mods_toc" / rel;
@@ -214,11 +216,11 @@ std::filesystem::path Resolve(const std::string& relative, const std::filesystem
         {
             s.configMerged = true;
             std::error_code ec;
-            for (const auto& e : std::filesystem::directory_iterator(gameRoot / "GearGame" / "CookedXbox360", ec))
+            for (const auto& e : std::filesystem::directory_iterator(gameRoot / "GearGame" / "CookedXenon", ec))
             {
                 const std::string name = Lower(e.path().filename().string());
                 if (!(name.starts_with("coalesced_") && name.ends_with(".bin"))) continue;
-                const std::string crel = "geargame\\cookedxbox360\\" + name;
+                const std::string crel = "geargame\\cookedxenon\\" + name;
                 const auto it = s.files.find(crel);
                 const auto base = it != s.files.end() ? it->second : e.path();
                 const auto out = GetUserPath() / "mods_config" / crel;

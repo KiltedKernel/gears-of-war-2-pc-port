@@ -1,0 +1,9 @@
+# main menu: hover HORDE, click the Options callout, right click back, wheel down
+55 key 0D 250
+64 cursor 300 355      # over HORDE
+65 cursor 304 356      # (a little movement)
+72 cursor 340 646      # the "Options" callout
+73 click L 120
+80 click R 120         # back
+86 cursor 300 286      # over CO-OP CAMPAIGN
+87 cursor 302 287

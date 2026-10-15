@@ -1,0 +1,6 @@
+# title -> Solo Campaign -> Continue (A on the first entry) -> loads the last checkpoint
+55 key 0D 250     # Start
+66 key 20 250     # A: Solo Campaign
+76 key 20 250     # A: Continue / Resume
+86 key 20 250     # A: confirm
+96 key 20 250     # A: any prompt
