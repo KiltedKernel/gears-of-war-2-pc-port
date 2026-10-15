@@ -271,9 +271,20 @@ uint32_t XamShowDeviceSelectorUI
     return 0;
 }
 
+// the title found a file it cannot read or trust ("dirty disc"): on the console a system message, then the dashboard.
+// Logged with the guest call chain (which check fired), so a broken install or mod shows up in the log.
 void XamShowDirtyDiscErrorUI()
 {
-    LOG_UTILITY("!!! STUB !!!");
+    uint32_t sp = GetPPCContext()->r1.u32;
+    std::string chain = fmt::format(" lr {:08X}", uint32_t(GetPPCContext()->lr));
+    for (int i = 0; i < 12 && sp >= 0x10000; i++)
+    {
+        const uint32_t next = ByteSwap(*(uint32_t*)g_memory.Translate(sp));
+        if (next <= sp || next - sp > 0x100000) break;
+        chain += fmt::format(" < {:08X}", ByteSwap(*(uint32_t*)g_memory.Translate(next - 8)));
+        sp = next;
+    }
+    LOGFN_ERROR("XamShowDirtyDiscErrorUI: the game rejected a file (damaged disc copy, or a mod it does not accept):{}", chain);
 }
 
 void XamEnableInactivityProcessing()

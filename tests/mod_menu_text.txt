@@ -1,0 +1,2 @@
+# with -Mods "examples\modsxampleMenuText": the main menu's Latest News reads "Modded with the Gears of War 2 PC port!"
+55 key 0D 250

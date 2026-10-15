@@ -24,6 +24,7 @@ Screenshots land in `build\shots`, the log in `build\gow2.log`. Tests run with t
 | prompt_switch.txt | any | button prompts follow the last device used |
 | mp_host_horde.txt + mp_join.txt | any | System Link Horde: the host's Horde lobby set to System Link, the party joined, Horde on Avalanche: wave 1 and its result on both |
 | mp_host_coop.txt + mp_join_coop.txt | any | System Link co-op: Co-op Campaign > Host / Join Co-op Campaign, the campaign lobby, Launch: the joiner plays Dom beside the host's Marcus (Skip Training, the hospital) |
+| mod_menu_text.txt | any | with `-Mods "examples\mods\ExampleMenuText"`: a configuration fragment changes the main menu's Latest News (the game's SHA-1 check accepts the merged file) |
 | horde.txt | any | Horde offline: Horde on Avalanche, wave 1 |
 | training.txt | any | Training Grounds: Lesson 1, Warzone with bots on Day One |
 | mp_host.txt + mp_join.txt | any | System Link (tools/mp_test.ps1): Multiplayer > Match Type: System Link opens the System Link Browser; the host creates a party, the joiner refreshes and joins it, the host starts Warzone on Avalanche and both play it |
