@@ -23,5 +23,6 @@ Not released yet. The goal of the first release is the Gears of War 3 port's lev
    notices): Versus, Horde and campaign co-op between two copies of the game.
 3. Installation wizard, launcher (options for Gears 2's settings, multiplayer, mods), keyboard prompts drawn for
    Gears 2's font.
-4. Mods: Gears 2's table of contents and configuration, examples.
+4. ~~Mods: Gears 2's table of contents and configuration, examples~~ (configuration fragments verified; a package
+   replacement still to test).
 5. Legal and size: no game data in the repository, notices, a lean tree.

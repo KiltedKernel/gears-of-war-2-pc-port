@@ -264,7 +264,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
 - Lesson: an earlier scripted run read the real keyboard (Down() OR'd GetAsyncKeyState); the user's typing paused
   the game. Scripted mode is now fully isolated.
 
-## 2026-10-10 — Character shading and shadows
+## 2026-10-10 â€” Character shading and shadows
 - **Black Shading Fix on by default** (`black_shading_fix`): mid-asm hook at 82806A44 skips the store of
   GUseTilingMode (stays FALSE) with r11 = 0, like Xenia game-patches. The dark, blocky shading on characters
   (Dom's face, Carmine's arms and armor in the Choose Path shot) is gone; Xenia's compatibility tracker reports the
@@ -322,7 +322,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
 - Closing the window now ends the process (xe_glue CloseListener -> TerminateProcess). Before, the game kept running
   headless with audio after the window closed.
 
-## 2026-10-10 — Profile settings, shader cache
+## 2026-10-10 â€” Profile settings, shader cache
 - **Profile settings persist** (kernel/gow2_profile.cpp, replaces the zero-filling read and the write that threw
   everything away): Xenia's layout (8-byte header, 40-byte X_USER_PROFILE_SETTING, string/binary payload after the
   entries, each at its max size from the id = type<<28 | size<<16 | id). Writes kept per (title, id) in
@@ -341,7 +341,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
 - Verified game speed at 120 fps: in tests/continue.txt every subtitle comes at the same second as at 60 fps
   (85/90/100 s), 120.0 fps in gameplay.
 
-## 2026-10-10 — Gameplay test, instruction tests, NtDuplicateObject
+## 2026-10-10 â€” Gameplay test, instruction tests, NtDuplicateObject
 - **Scripted gameplay test** (tests/combat.txt, after Continue): walk with the squad, look, aim (LT), fire (RT), reload
   (RB), cover behind the dumpster (A), blind fire, Y, roadie run. All work (the ammo counter drops), 60 fps, audio
   187.5 frames/s, no crash. Only warning: RtlImageXexHeaderField 00020401 (optional header field, harmless).
@@ -362,7 +362,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
 - Remaining stubs the game calls: ObDereferenceObject, KeEnableFpuExceptions, ExRegisterTitleTerminateNotification
   (all fine as no-ops). Controllers: XInput pads with rumble were already supported (hid.cpp, XamInputSetState).
 
-## 2026-10-10 — Performance, display options, one-step setup
+## 2026-10-10 â€” Performance, display options, one-step setup
 - **Performance** (RTX 5070 Ti, i7-13700K, 2560x1440 at 154 Hz; tests/continue.txt with frame_rate 120): scale 1 and 2
   hold 120 fps (scale 2 dips to 116 while loading); scale 3 gives 54-67 fps with the GPU at 99%. Xenia's EDRAM
   emulation (host render targets) costs grow with scale^2. Capped at 154, scale 2 gives 114-143: about 140 is the
@@ -395,7 +395,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
   - setup_xenia.sh rewrote version.h on every run, rebuilding part of Xenia: it now writes only on change.
 - .gitignore: shots/ (game screenshots), save_backups/, game_link/, run*.txt, recomp*.log.
 
-## 2026-10-10 — Keyboard/mouse button prompts (follow the input device)
+## 2026-10-10 â€” Keyboard/mouse button prompts (follow the input device)
 - **How GoW2 draws prompts**: UE3 markup `<Fonts:Warfare_HUD.Xbox360_18pt>A<Fonts:/>` (GearGameUI.ControllerFont.*) and
   `<StringAliasBindings:GBA_*>` both end up as characters of the font Warfare_HUD.Xbox360_18pt. A B X Y = face
   buttons, L/C = sticks, Q = LS down, j/h = stick clicks, ] ^ = LT/RT, _ ` = LB/RB, > < = Start/Back, l m q s o = d-pad,
@@ -436,7 +436,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
   buttons, lists, sliders; Escape closes scenes), so the engine's mouse handling may only need a cursor position
   and mouse key events fed in.
 
-## 2026-10-10 — UE3 reflection, mouse in menus
+## 2026-10-10 â€” UE3 reflection, mouse in menus
 - **UE3 reflection** (tools/ue3dump.py over GOW2_MEM_DUMP dumps; runtime/ue3/reflection.cpp live):
   - FNameEntry {u32 Index = n*2, u32 HashNext (pool offset), char Name[]}, packed in a pool that starts with None.
     GNames is an array of entry pointers: 0x03AC0000 or 0x03AA0000 (varies by run; found from the entry
@@ -475,7 +475,7 @@ in-engine with prompts)**, driven by keyboard input (`tools/shot.ps1 -Keys`).
 - Start's prompt is now the Enter keycap (Esc is B in menus, so "Press Start: Esc" was wrong; Enter is Start
   everywhere).
 
-## 2026-10-10 — Skip the intro movies
+## 2026-10-10 â€” Skip the intro movies
 - `gow2.exe -nointro` (also --nointro, -skipintro, --skip-intro; options may come anywhere, the first non-option
   argument is still the disc folder) or `[display] skip_intro_movies = true`.
 - The startup movies are [FullScreenMovie] StartupMovies = EpicLogo, MGSLogo, LoadingMovie (Bink 1 "BIKi" files in
@@ -603,3 +603,15 @@ Done: runtime fork, data imports, file system (extracted disc folder), memory mo
 - Also: game sockets get a 4 MB receive buffer (a loading title does not read for seconds), and a datagram larger
   than the protocol's payload is logged instead of dropped silently. prop_log finds Gears 2's StateFrame (+24) and
   states anywhere in memory.
+
+## 2026-10-15: mods: Gears 2 checks file hashes
+
+- With examples/mods/ExampleMenuText the game stopped on a black screen after the logos: it called
+  XamShowDirtyDiscErrorUI. That stub now logs the guest call chain (lr 82AAB788 < 8223F03C): FAsyncSHAVerify
+  (8223EF68) hashes a file it read (FSHA1 8227A648), compares the 20 bytes with GetFileSHAHash (827F9340, the hash
+  table built into the executable, looked up by file name; "not found" is an error when the request says so) and
+  calls the dirty-disc error on a mismatch. The packed configuration (Coalesced_INT.bin) is one of the hashed files.
+  Gears 3 never checked it this way.
+- runtime/kernel/gow2_sha.cpp: for a file a mod provides (mods::Resolve, which also covers the configuration merged
+  with fragments), GetFileSHAHash answers the SHA-1 of the file the game is served; every other file keeps the disc's
+  hash and its check. The main menu then reads the mod's text (tests/mod_menu_text.txt).
