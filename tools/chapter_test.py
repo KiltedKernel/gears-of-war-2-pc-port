@@ -1,4 +1,4 @@
-"""Campaign coverage: boot each chapter directly and check it loads and plays.
+r"""Campaign coverage: boot each chapter directly and check it loads and plays.
 
 usage: python tools/chapter_test.py [chapters] [--seconds N] [--out DIR]
   chapters: "0-28" (default; Gears 2: ChapterLevelNames 0-28 in GearCampaignChapterData), "7", "7,8,14-18"
