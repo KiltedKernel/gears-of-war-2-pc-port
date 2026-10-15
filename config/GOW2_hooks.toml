@@ -1,0 +1,50 @@
+# ---- mid-asm hooks (runtime/kernel/gow2_patches.cpp) ----
+# Frame rate unlock (Xenia game-patches "Unlock FPS", illusion & boma): the engine's max tick rate getter returns
+# 0.0 (no cap) instead of its 30 fps value, and the D3D presents every vblank instead of every second one.
+[[midasm_hook]]
+name = "GoW2MaxTickRateHook"
+address = 0x824A2E94
+registers = ["r3"]
+jump_address_on_true = 0x824A2E98
+
+[[midasm_hook]]
+name = "GoW2PresentIntervalHook"
+address = 0x8298CFB0
+registers = ["r11"]
+after_instruction = true
+
+# Quality options (Xenia game-patches, boma), gow2.ini [graphics]
+[[midasm_hook]]
+name = "GoW2AnisotropyHook"
+address = 0x8280E7FC
+registers = ["r5"]
+after_instruction = true
+
+[[midasm_hook]]
+name = "GoW2TexturePoolHook"
+address = 0x8280D534
+registers = ["r4"]
+after_instruction = true
+
+# Black Shading Fix (Xenia game-patches, illusion & boma): GUseTilingMode stays FALSE (no predicated tiling / MSAA
+# resolve), which removes the black, blocky shading on characters
+[[midasm_hook]]
+name = "GoW2TilingModeHook"
+address = 0x82806A44
+registers = ["r11"]
+jump_address_on_true = 0x82806A48
+
+# Shadow map resolution cap (GSystemSettings.MaxShadowResolution, 800 on the console), read where a light/primitive
+# has no resolution of its own (82741300 shadow setup, 82741884 projected shadow depths)
+[[midasm_hook]]
+name = "GoW2ShadowResolutionHook"
+address = 0x82741300
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]
+name = "GoW2ShadowResolutionHook"
+address = 0x82741884
+registers = ["r11"]
+after_instruction = true
+

@@ -1,0 +1,9 @@
+# new campaign -> opening cutscene with Carmine (his left arm is in the foreground around "Drop the sir...")
+55 key 0D 250     # Start
+66 key 20 250     # A: Solo Campaign
+76 key 51 250     # Q = Y: New Campaign
+86 key 20 250     # A: confirm / difficulty
+96 key 20 250     # A: casual
+106 key 20 250    # A: any prompt
+290 capture
+295 key 01 400    # left mouse = RT: Train

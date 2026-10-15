@@ -1,0 +1,177 @@
+# XenonRecomp config for Gears of War 2 (Xbox 360, title update: none). Paths relative to this file.
+# default.xex comes from the player's own disc (..gow2-decomp is the dev copy; never committed or shipped).
+[main]
+file_path = "../game_link/default.xex"
+out_directory_path = "../ppc"
+switch_table_file_path = "GOW2_switch_tables.toml"
+
+# optimizations stay off until the recompilation runs correctly (XenonRecomp README)
+skip_lr = false
+skip_msr = false
+ctr_as_local = false
+xer_as_local = false
+reserved_as_local = false
+cr_as_local = false
+non_argument_as_local = false
+non_volatile_as_local = false
+
+# register save/restore helpers (byte patterns from the XenonRecomp README; one match each in .text)
+restgprlr_14_address = 0x82A930F0
+savegprlr_14_address = 0x82A930A0
+restfpr_14_address = 0x82A9344C
+savefpr_14_address = 0x82A93400
+restvmx_14_address = 0x82A944E8
+savevmx_14_address = 0x82A94250
+restvmx_64_address = 0x82A9457C
+savevmx_64_address = 0x82A942E4
+
+invalid_instructions = [
+    { data = 0x00000000, size = 4 }, # padding
+]
+
+# ---- generated: explicit function bounds (tools/fix_boundaries.py) ----
+functions = [
+    { address = 0x82230368, size = 0x214 },
+    { address = 0x82230580, size = 0x1F8 },
+    { address = 0x822F0808, size = 0x70 },
+    { address = 0x822FF238, size = 0x134 },
+    { address = 0x823140D0, size = 0x88 },
+    { address = 0x82316408, size = 0xF8 },
+    { address = 0x82338E30, size = 0x7C },
+    { address = 0x8234E1F8, size = 0x68 },
+    { address = 0x8235A2C8, size = 0x84 },
+    { address = 0x8235AF88, size = 0xA0 },
+    { address = 0x82387E88, size = 0xB8 },
+    { address = 0x82387F40, size = 0xB8 },
+    { address = 0x823CE780, size = 0x1B8 },
+    { address = 0x823D0458, size = 0x12C },
+    { address = 0x82536250, size = 0x1E4 },
+    { address = 0x82540CC0, size = 0xB8 },
+    { address = 0x825F66C0, size = 0x118 },
+    { address = 0x82669668, size = 0x98 },
+    { address = 0x82688150, size = 0x50 },
+    { address = 0x826881E8, size = 0x90 },
+    { address = 0x827A7088, size = 0x8C },
+    { address = 0x827E2398, size = 0xA4 },
+    { address = 0x828027B8, size = 0x6C },
+    { address = 0x828032A8, size = 0x50 },
+    { address = 0x82807620, size = 0xBC },
+    { address = 0x8280A1C8, size = 0x7C },
+    { address = 0x8280A248, size = 0x80 },
+    { address = 0x8280A2C8, size = 0x98 },
+    { address = 0x8281E910, size = 0x458 },
+    { address = 0x82825C28, size = 0x270 },
+    { address = 0x8282A608, size = 0x94 },
+    { address = 0x82861438, size = 0x100 },
+    { address = 0x82976C98, size = 0xEC },
+    { address = 0x8299D3F8, size = 0x18 },
+    { address = 0x8299D410, size = 0xBF0 },
+    { address = 0x829EB1F8, size = 0x114 },
+    { address = 0x82A39C00, size = 0x110 },
+    { address = 0x82A93150, size = 0xA0 },
+    { address = 0x82AD3A98, size = 0x8 },
+    { address = 0x82AD3AA0, size = 0x174 },
+    { address = 0x82AE67D0, size = 0x8 },
+    { address = 0x82AE67D8, size = 0x154 },
+    { address = 0x82AE9138, size = 0x8 },
+    { address = 0x82AE9140, size = 0x650 },
+    { address = 0x82AE9B00, size = 0x8 },
+    { address = 0x82AE9B08, size = 0x3DC },
+    { address = 0x82AFBA78, size = 0x8 },
+    { address = 0x82AFBA80, size = 0x340 },
+    { address = 0x82AFFB98, size = 0x8 },
+    { address = 0x82AFFBA0, size = 0x434 },
+    { address = 0x82B023F0, size = 0x8 },
+    { address = 0x82B023F8, size = 0x124 },
+    { address = 0x82B030C8, size = 0x8 },
+    { address = 0x82B030D0, size = 0x258 },
+    { address = 0x82B033A8, size = 0x8 },
+    { address = 0x82B033B0, size = 0x228 },
+    { address = 0x82B03628, size = 0x8 },
+    { address = 0x82B03630, size = 0x414 },
+    { address = 0x82B04620, size = 0x8 },
+    { address = 0x82B04628, size = 0x204 },
+    { address = 0x82B4F118, size = 0x5C4 },
+    { address = 0x82B67810, size = 0x8 },
+    { address = 0x82B67818, size = 0x4BC },
+    { address = 0x82B6F2B0, size = 0x8 },
+    { address = 0x82B6F2B8, size = 0x310 },
+    { address = 0x82B71F30, size = 0x8 },
+    { address = 0x82B71F38, size = 0xA04 },
+    { address = 0x82B7D5D8, size = 0x8 },
+    { address = 0x82B7D5E0, size = 0x2D0 },
+    { address = 0x82B865E0, size = 0x8 },
+    { address = 0x82B865E8, size = 0x558 },
+    { address = 0x82BA09D0, size = 0x8 },
+    { address = 0x82BA09D8, size = 0x704 },
+    { address = 0x82BC3950, size = 0x80 },
+    { address = 0x82C66ED8, size = 0x78 },
+    { address = 0x82CB3AA0, size = 0x68 },
+    { address = 0x82CB3B08, size = 0x64 },
+    { address = 0x82CB3B70, size = 0x5C },
+    { address = 0x82CB3BD0, size = 0x198 },
+    { address = 0x82CB3D68, size = 0x16C },
+    { address = 0x82CD9E50, size = 0x58 },
+    { address = 0x82CD9EA8, size = 0x58 },
+    { address = 0x82CD9FE0, size = 0x58 },
+    { address = 0x82D06B70, size = 0x5C },
+    { address = 0x82D06BD0, size = 0x5C },
+    { address = 0x82D06C30, size = 0x68 },
+    { address = 0x82D06C98, size = 0x4C },
+    { address = 0x82D48128, size = 0x50 },
+    { address = 0x82DB0770, size = 0x54 },
+    { address = 0x82DB4920, size = 0x344 },
+    { address = 0x82E750C0, size = 0x18C },
+    { address = 0x82EF5C30, size = 0x108 },
+]
+
+# ---- mid-asm hooks (runtime/kernel/gow2_patches.cpp) ----
+# Frame rate unlock (Xenia game-patches "Unlock FPS", illusion & boma): the engine's max tick rate getter returns
+# 0.0 (no cap) instead of its 30 fps value, and the D3D presents every vblank instead of every second one.
+[[midasm_hook]]
+name = "GoW2MaxTickRateHook"
+address = 0x824A2E94
+registers = ["r3"]
+jump_address_on_true = 0x824A2E98
+
+[[midasm_hook]]
+name = "GoW2PresentIntervalHook"
+address = 0x8298CFB0
+registers = ["r11"]
+after_instruction = true
+
+# Quality options (Xenia game-patches, boma), gow2.ini [graphics]
+[[midasm_hook]]
+name = "GoW2AnisotropyHook"
+address = 0x8280E7FC
+registers = ["r5"]
+after_instruction = true
+
+[[midasm_hook]]
+name = "GoW2TexturePoolHook"
+address = 0x8280D534
+registers = ["r4"]
+after_instruction = true
+
+# Black Shading Fix (Xenia game-patches, illusion & boma): GUseTilingMode stays FALSE (no predicated tiling / MSAA
+# resolve), which removes the black, blocky shading on characters
+[[midasm_hook]]
+name = "GoW2TilingModeHook"
+address = 0x82806A44
+registers = ["r11"]
+jump_address_on_true = 0x82806A48
+
+# Shadow map resolution cap (GSystemSettings.MaxShadowResolution, 800 on the console), read where a light/primitive
+# has no resolution of its own (82741300 shadow setup, 82741884 projected shadow depths)
+[[midasm_hook]]
+name = "GoW2ShadowResolutionHook"
+address = 0x82741300
+registers = ["r11"]
+after_instruction = true
+
+[[midasm_hook]]
+name = "GoW2ShadowResolutionHook"
+address = 0x82741884
+registers = ["r11"]
+after_instruction = true
+
