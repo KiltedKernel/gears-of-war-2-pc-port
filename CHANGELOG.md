@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Fix: NtClose took the game's session handles (numbers from 0xF5E50000) for kernel objects' addresses and ran a
+  destructor on whatever was there (an intermittent crash of a joining game in the Gears of War 3 port, same code).
+  Session handles are closed as sessions; anything that is not an open object gets "invalid handle".
+
 ## 0.1.0 (2026-10-15)
 
 The first release: Gears of War 2 at the Gears of War 3 port's level.
