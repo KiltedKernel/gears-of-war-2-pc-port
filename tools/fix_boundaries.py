@@ -121,7 +121,10 @@ out = dict(merged)
 # memset's byte tail is "stb 0; bdzlr; stb 1; bdzlr; stb 2; blr", so lengths with 2-3 trailing bytes lost them
 # (Gears 2: Carmine's 95-entry SkelControlIndex kept two 0 bytes = his left-hand IK on the wrong bone).
 # Gears of War 2's memset: the same 0xA0 bytes at 82CC9EA0.
-MANUAL = {0x82CC9EA0: 0xA0}
+# memset (its byte tail has bdzlr between stores: the analyser ended it at the first one), and a leaf constructor with
+# no .pdata entry that follows a call to the C++ throw (82CD54A0, never returns) and is only reached through a pointer
+# (the vector constructor iterator 82CD5BF8 calls it: Act 1 chapter 3's intro cinematic)
+MANUAL = {0x82A93150: 0xA0, 0x82ADBED8: 0x18, 0x82ADBEF0: 0x14}
 for b, ln in MANUAL.items():
     out[b] = max(out.get(b, 0), ln)
 with open(sys.argv[5], "w") as f:

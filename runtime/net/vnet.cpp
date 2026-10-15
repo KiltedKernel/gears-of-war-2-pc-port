@@ -191,8 +191,8 @@ namespace
         SetWindowTextA(w, t.c_str());
     }
 
-    const char* kHowTo = "In the game: Party Options (Back / Backspace on the main menu) > System Link. "
-                         "Create a party, or join one from the list.";
+    const char* kHowTo = "In the game: Multiplayer > Match Type: System Link. Create a party, or join one from the "
+                         "System Link Browser.";
 
     // this game's own hub (direct play, nobody found): friends join it. UPnP and the code run off this thread.
     bool OpenOwnHub(bool otherPorts)

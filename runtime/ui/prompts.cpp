@@ -35,12 +35,15 @@ namespace
     using Image = std::vector<Rgba>;                           // kSize x kSize
 
     std::mutex g_mutex;
-    std::atomic<uint32_t> g_page{ 0 };                         // physical address of page 0, once seen
+    std::atomic<uint32_t> g_page{ 0 };                         // physical address of page 0, once seen (the latest)
+    std::vector<uint32_t> g_pages;                             // every address it was loaded at: menus that load
+                                                               // the font again (the multiplayer lobby) keep copies
     std::vector<uint8_t> g_originalTex, g_kbmTex;              // guest (tiled, byte-swapped) data
     std::array<Glyph, kGlyphs> g_originalGlyphs{}, g_kbmGlyphs{};
     uint32_t g_table = 0;                                      // guest address of the FFontCharacter array
     bool g_built = false, g_failed = false;
     std::atomic<int> g_applied{ 0 };                           // 0 = original, 1 = keyboard/mouse
+    std::atomic<bool> g_moved{ false };                        // the font was loaded again elsewhere (new table)
     uint64_t g_kbmHash = 0;
 
     uint64_t Fnv(const uint8_t* p, size_t n)
@@ -297,13 +300,86 @@ namespace
         return 0;
     }
 
+    // every copy of the character table, in either layout: the stock one, or the keyboard one we wrote (menus such as
+    // the multiplayer lobby copy the font's table, also while keyboard prompts are on)
+    std::vector<uint32_t> FindTables()
+    {
+        auto pattern = [](const std::array<Glyph, kGlyphs>& g, uint32_t out[12]) {
+            for (int k = 0; k < 2; k++)
+            {
+                const Glyph& x = g['A' + k];
+                const uint32_t v[6] = { uint32_t(x.u), uint32_t(x.v), uint32_t(x.w), uint32_t(x.h), 0, uint32_t(x.voffset) };
+                for (int i = 0; i < 6; i++) out[6 * k + i] = ByteSwap(v[i]);
+            }
+        };
+        uint32_t stock[12], kbm[12];
+        pattern(g_originalGlyphs, stock);
+        pattern(g_kbmGlyphs, kbm);
+        std::vector<uint32_t> found;
+        for (uint64_t base = 0x40000000; base < 0x80000000;)
+        {
+            MEMORY_BASIC_INFORMATION mbi;
+            uint8_t* host = (uint8_t*)g_memory.Translate(uint32_t(base));
+            if (!VirtualQuery(host, &mbi, sizeof(mbi))) break;
+            const uint64_t end = std::min<uint64_t>(0x80000000, base + uint64_t((uint8_t*)mbi.BaseAddress + mbi.RegionSize - host));
+            if (mbi.State == MEM_COMMIT && !(mbi.Protect & (PAGE_NOACCESS | PAGE_GUARD)))
+            {
+                const uint32_t* w = (const uint32_t*)host;
+                const size_t n = size_t(end - base) / 4;
+                for (size_t i = 0; i + 12 <= n; i++)
+                {
+                    // the texture byte of the records' +16 word is compared masked: the low bytes are other fields
+                    auto same = [&](const uint32_t* p) {
+                        for (int k = 0; k < 12; k++)
+                            if (k % 6 == 4 ? (ByteSwap(w[i + k]) >> 24) != 0 : w[i + k] != p[k]) return false;
+                        return true;
+                    };
+                    if ((w[i] == stock[0] && same(stock)) || (w[i] == kbm[0] && same(kbm)))
+                    {
+                        const uint32_t table = uint32_t(base + i * 4) - 'A' * 24;
+                        const uint32_t yu = ReadGlyph(table + 'Y' * 24).u;
+                        if (yu == uint32_t(g_originalGlyphs['Y'].u) || yu == uint32_t(g_kbmGlyphs['Y'].u)) found.push_back(table);
+                    }
+                }
+            }
+            base = end;
+        }
+        return found;
+    }
+
     void Apply(bool kbm)
     {
         const auto& glyphs = kbm ? g_kbmGlyphs : g_originalGlyphs;
-        for (int c = 0; c < kGlyphs; c++)
-            if (g_originalGlyphs[c].texture == 0) WriteGlyph(g_table + c * 24, glyphs[c]);
+        std::vector<uint32_t> tables = FindTables();
+        if (std::find(tables.begin(), tables.end(), g_table) == tables.end()) tables.push_back(g_table);
+        for (uint32_t t : tables)
+            for (int c = 0; c < kGlyphs; c++)
+                if (g_originalGlyphs[c].texture == 0) WriteGlyph(t + c * 24, glyphs[c]);
+        static const bool debugTables = getenv("GOW2_PROMPTS_DEBUG") != nullptr;
+        if (debugTables) LOGFN("prompts: {} character table(s)", tables.size());
         const auto& tex = kbm ? g_kbmTex : g_originalTex;
-        portgpu::WritePhysical(g_page, tex.data(), tex.size(), true);
+        // only copies that still hold the page (stock or keyboard): a freed copy's memory may be another texture now
+        std::vector<uint8_t> cur(kBytes);
+        std::erase_if(g_pages, [&](uint32_t page) {
+            portgpu::ReadPhysical(page, cur.data(), kBytes);
+            const uint64_t h = Fnv(cur.data(), kBytes);
+            const bool keep = h == kOriginalHash || h == g_kbmHash;
+            static const bool debug = getenv("GOW2_PROMPTS_DEBUG") != nullptr;
+            if (debug)
+            {
+                size_t vsStock = 0, vsKbm = 0, firstDiff = SIZE_MAX;
+                for (size_t i = 0; i < kBytes; i++)
+                {
+                    vsStock += cur[i] != g_originalTex[i];
+                    if (cur[i] != g_kbmTex[i]) { vsKbm++; if (firstDiff == SIZE_MAX) firstDiff = i; }
+                }
+                LOGFN("prompts: page {:08X}: {} ({} bytes differ from stock, {} from keyboard, first at {:X})", page,
+                    h == kOriginalHash ? "stock" : h == g_kbmHash ? "keyboard" : "something else (dropped)", vsStock, vsKbm, firstDiff);
+            }
+            if (!keep) return true;
+            portgpu::WritePhysical(page, tex.data(), tex.size(), true);
+            return false;
+        });
         g_applied = kbm ? 1 : 0;
         LOGFN("prompts: {} prompts", kbm ? "keyboard/mouse" : "controller");
     }
@@ -342,6 +418,16 @@ namespace
             }
             const int mode = settings::Get().prompts;   // 0 auto, 1 keyboard, 2 controller
             const bool want = mode == 1 || (mode == 0 && hid::ActiveDevice() == hid::Device::KeyboardMouse);
+            // menus that load the font again (the multiplayer lobby) bring a new character table: find it and put the
+            // current prompts in it, or its stock coordinates would meet the keyboard page
+            if (g_moved.exchange(false))
+                if (const uint32_t t = FindTable(); t && t != g_table)
+                {
+                    LOGFN("prompts: the font was loaded again: table at {:08X}, page at {:08X}", t, g_page.load());
+                    g_table = t;
+                    Apply(want);
+                    continue;
+                }
             if (want != (g_applied == 1)) Apply(want);
         }
     }
@@ -358,10 +444,20 @@ void OnTextureLoad(uint32_t address, uint32_t size, uint32_t format, uint32_t wi
     if (h == kOriginalHash)
     {
         if (g_originalTex.empty()) g_originalTex = data;
+        if (g_built) g_moved = true;   // loaded again (here or elsewhere): the table may be new too
         g_page = address;
+        if (std::find(g_pages.begin(), g_pages.end(), address) == g_pages.end()) g_pages.push_back(address);
         // the game (re)loaded the stock page while keyboard prompts are on: keep them (no invalidation needed, the
         // upload that follows reads this)
         if (g_applied == 1 && !g_kbmTex.empty()) portgpu::WritePhysical(address, g_kbmTex.data(), kBytes, false);
+    }
+    else if (g_kbmHash && h == g_kbmHash)
+    {
+        // a copy the game made of the page while it held the keyboard picture (menus that load the font again, such as
+        // the multiplayer lobby, copy it): one more copy to switch
+        if (std::find(g_pages.begin(), g_pages.end(), address) == g_pages.end()) g_pages.push_back(address);
+        g_page = address;
+        if (g_applied == 0 && !g_originalTex.empty()) portgpu::WritePhysical(address, g_originalTex.data(), kBytes, false);
     }
 }
 

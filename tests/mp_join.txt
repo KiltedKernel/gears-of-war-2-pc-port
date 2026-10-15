@@ -1,0 +1,12 @@
+# System Link joiner: the same way to the System Link Browser, then Refresh (X) and Join Party (A)
+55 key 0D 250
+64 cursor 300 331
+65 cursor 304 332
+68 click L 120
+70 cursor 1270 710
+80 pad 0002 80
+84 pad 1000 80
+89 pad 0001 80
+94 pad 1000 80       # the System Link Browser
+108 pad 4000 80      # X: Refresh
+116 pad 1000 80      # A: Join Party (the first one listed)
