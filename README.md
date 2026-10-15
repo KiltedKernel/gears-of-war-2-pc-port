@@ -7,10 +7,10 @@ kernel, and draws with Xenia's Direct3D 12 GPU emulation.
 **No game files are included.** The installation wizard reads your disc image and makes everything game-derived on
 your PC.
 
-**Work in progress.** The port boots from your disc into the menus and the campaign (title screen, main menu,
-difficulty, the opening, checkpoint saves) at 60 fps with keyboard, mouse and controller. It is being brought up to
-the Gears of War 3 port's level: every chapter and mode playable, multiplayer over System Link (with friends or on a
-server), the installation wizard and launcher, and mods. See [docs/STATUS.md](docs/STATUS.md) for what is verified.
+Version 0.1.0: the whole campaign (all five acts, 29 chapter points) loads and plays, as do Horde and Training
+Grounds offline; multiplayer over System Link (Versus, Horde and campaign co-op), on a LAN, over the internet with a
+friend's code, or on a server; keyboard, mouse and controller; mods. See [docs/STATUS.md](docs/STATUS.md) for what is
+verified and what is next, and [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
@@ -78,6 +78,19 @@ one from the list, or **Run my own**). Then, in the game, open Party Options (Ba
 Link**, and create or join a party. The game tells you on screen who joins and what goes wrong. See
 [docs/MULTIPLAYER.md](docs/MULTIPLAYER.md).
 
+## Mods
+
+Each folder in `build\mods\` with a `mod.ini` adds or replaces game files, and its `config\*.ini` fragments change the
+game's configuration; several mods stack by priority, and the game's table of contents is merged automatically. The
+launcher's **Mods** tab turns mods on or off, changes the load order, installs a shared .zip and removes mods;
+`tools\modtool.py` creates, checks and packs them. An example is in `examples\mods`. See
+[docs/MODDING.md](docs/MODDING.md).
+
+## How it works / reverse engineering
+
+[docs/REVERSE_ENGINEERING.md](docs/REVERSE_ENGINEERING.md) describes what is known about the game (functions, data
+layouts, file formats); [docs/ENGINEERING_LOG.md](docs/ENGINEERING_LOG.md) is the full development journal.
+
 ## Developing
 
 - `bash tools/rebuild.sh`: recompile (when `config/` changed) and rebuild; `cmd /c tools\build.cmd`: rebuild the
@@ -86,7 +99,7 @@ Link**, and create or join a party. The game tells you on screen who joins and w
   `build\shots`, log in `build\gow2.log` ([tests/README.md](tests/README.md)). Tests use their own saves, profile and
   settings (`build\testdata`; `-Fresh` starts empty) and their own mods (`-Mods "examples\mods\X"`), never the
   player's.
-- `python tools\chapter_test.py [0-30]`: campaign coverage. Boots each chapter directly (`GOW2_COMMAND_LINE`), plays
+- `python tools\chapter_test.py [0-28]`: campaign coverage. Boots each chapter directly (`GOW2_COMMAND_LINE`), plays
   generic input, and reports crashes, the map loaded, frame rates and black or frozen screens
   (`build\coverage\report.md`, a contact sheet per chapter).
 - Debug switches are environment variables `GOW2_*`, documented in the files that read them.

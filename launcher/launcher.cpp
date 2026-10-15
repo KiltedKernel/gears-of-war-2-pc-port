@@ -1165,8 +1165,8 @@ void UpdateMultiplayer()
     for (HWND c : g_mpServerPanel) ShowWindow(c, visible && server ? SW_SHOW : SW_HIDE);
     SetWindowTextW(g_mpHint,
         friends ? L"Games on your network find each other by themselves. Over the internet: give friends your code, or type theirs. "
-                  L"In the game: Party Options (Back / Backspace) > System Link."
-        : server ? L"Everyone on the server sees each other's parties: in the game, Party Options (Back / Backspace) > System Link. "
+                  L"In the game: Multiplayer (or Co-op Campaign) > System Link."
+        : server ? L"Everyone on the server sees each other's parties: in the game, Multiplayer > Match Type: System Link. "
                    L"A private room keeps your group to itself: everyone types the same name."
                  : L"Campaign, splitscreen and matches with bots. Nothing is sent to the network.");
 }
