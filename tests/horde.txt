@@ -1,0 +1,10 @@
+# Horde offline: main menu -> HORDE (mouse) -> lobby -> PLAY -> pregame lobby: map, then start (Start twice)
+55 key 0D 250        # Enter = Start
+64 cursor 300 355    # over HORDE
+65 cursor 304 356
+68 click L 120       # the Horde lobby
+76 cursor 166 179    # PLAY
+77 cursor 169 180
+79 click L 120
+92 pad 0010 80       # Start: the map
+102 pad 0010 80      # Start: start the match

@@ -36,9 +36,10 @@ shows every party on the server, and the game shows who comes and goes.
 
 ### Then, in the game
 
-Open **Party Options** (Back on a controller, Backspace on the keyboard, on the main menu) > **System Link**. One of
-you picks **Create Party**, the others join it from the list. The party leader picks a mode, for example
-Versus > Private, and starts; the party follows.
+On the main menu pick **Multiplayer**, then set **Match Type** to **System Link**: the System Link Browser opens. One
+of you picks **Create Party** (Y); the others pick **Refresh** (X) and join the party from the list (A). The party
+leader chooses the game type and options in the lobby and picks **Play**, then a map, and starts the match; the
+party follows. The System Link Browser is also on the right trigger in a System Link lobby.
 
 ### Windows Firewall
 
@@ -120,11 +121,7 @@ answers at). See tests/README.md.
 
 ## Status
 
-Verified on one PC with the setups above: the second game finds the first, joins its party, and both play a Private
-Team Deathmatch (lan, samepc, server); the code cases connect or fall back as described. Over System Link (lan):
-Horde (the Command Post bought, wave 1 against both players, the wave result on both), Beast (both players pick a
-creature and play wave 1), and campaign co-op from a checkpoint (the second player joins the campaign and waits for
-the drop-in point; reaching Dom in a test is still to do). Not verified yet: two separate PCs, a real router's
-UPnP. No voice chat (the game is told
-there is no headset). Casual and Standard (Xbox LIVE matchmaking) still ask for Xbox LIVE; use Private with System
-Link.
+Verified on one PC (tools/mp_test.ps1, lan): the second game finds the first, joins its System Link party from the
+System Link Browser, and both play Warzone on Avalanche (one COG, one Locust). Still to verify for Gears 2: the other
+setups (samepc, server, codes), Horde and campaign co-op over System Link, two separate PCs, a real router's UPnP. No
+voice chat (the game is told there is no headset). Public and Private Xbox LIVE need Xbox LIVE; use System Link.

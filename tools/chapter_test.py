@@ -30,13 +30,13 @@ def parse_chapters(text):
 
 def input_script(seconds):
     """generic play: from 30 s, every 12 s skip a cutscene (Back: "Skip Cinematic" in Gears 2; Start would only pause
-    it), walk forward, turn, fire, take cover"""
+    it), walk forward, turn, fire, take cover (Space), press A (tutorial boxes wait for it)"""
     lines = ['# chapter_test.py: generic play (skip cutscenes, walk, look, fire, cover)', '28 capture']
     t = 30.0
     while t < seconds - 8:
         lines += [f'{t:.1f} pad 0020 200',
                   f'{t + 3:.1f} key 57 3000', f'{t + 6.5:.1f} mouse 400 0 600', f'{t + 8:.1f} trig R 900',
-                  f'{t + 9.5:.1f} key 20 150', f'{t + 10.5:.1f} mouse -250 40 500']
+                  f'{t + 9.5:.1f} key 20 150', f'{t + 11:.1f} pad 1000 150', f'{t + 10.5:.1f} mouse -250 40 500']
         t += 12
     return '\n'.join(lines) + '\n'
 

@@ -553,3 +553,29 @@ Done: runtime fork, data imports, file system (extracted disc folder), memory mo
 - First run (tests/new_campaign.txt): title, main menu, Select Difficulty, the opening narration and the first
   level loading, checkpoint saves, 60 fps, audio. The keyboard prompt page does not fit yet: the drawn keycaps are
   sized for Gears 3's font.
+
+## 2026-10-15: every chapter, Horde, Training Grounds; System Link Versus
+
+- Campaign coverage (tools/chapter_test.py, chapters 0-28 = Xe-GearGame.ini ChapterLevelNames, each booted with
+  `GearGame_P?game=geargamecontent.GearGameSP?chapter=N`): all 29 load their maps and run 150 s without a crash,
+  60 fps after loading (30 during the Bink intro movies of chapters 2 and 25). Chapter 24 (Escape, the Reaver) waits
+  on a tutorial box until A or Space: the test now presses A too. Gears 2 skips a cinematic with Back; Start only
+  pauses it.
+- Crash fixed on the way (chapters 2-3, SP_Assault's intro cinematic): `eh vector constructor iterator` 82CD5BF8
+  called the constructor 82ADBEF0 through a pointer, and the recompiled code had no function there: a 5-instruction
+  leaf with no .pdata entry, right after a call to the C++ throw 82CD54A0 (which never returns), so the analyser kept
+  it inside 82ADBED8. A scan of every gap between .pdata functions found it the only code gap (21 others are data
+  words after throw calls); the same scan finds none in Gears 3.
+- Horde (tests/horde.txt): main menu > Horde > Play > Avalanche > Start: Horde on Avalanche, wave 1. Training Grounds
+  (tests/training.txt): Lesson 1, a 3-on-3 Warzone on Day One with bots.
+- System Link (tests/mp_host.txt, mp_join.txt, tools/mp_test.ps1 lan): Multiplayer > Match Type: System Link opens
+  the System Link Browser; Create Party (Y); the joiner's Refresh (X) lists "HostTest", A joins; the host picks
+  Play, Start (map: Avalanche), Start: both play Warzone, one COG and one Locust. XSessionCreate host (flags 21) and
+  joiner (flags 20) through x360_session.cpp, unchanged from Gears 3.
+- Scripting the lobby: the menu mouse's hover moves a list's selection when the cursor is left over it, so the
+  scripts park the cursor in a corner before using the pad; presses of 80 ms (200 ms ones sometimes moved twice).
+- Prompts in the lobby: the lobby copies the button font's texture page while it holds the keyboard picture, and that
+  copy was never switched back (garbled controller prompts). Copies with the keyboard picture are now tracked like
+  stock ones, and a switch rewrites every copy that still holds one of the two pictures.
+- Gears 2 and Gears 3 games never mix: each port's protocol has its own magic, and a hub answers the other game's
+  Hello or launcher query with a Reject in that game's magic ("this is for Gears of War 3, not Gears of War 2").

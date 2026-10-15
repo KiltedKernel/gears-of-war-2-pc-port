@@ -1,0 +1,9 @@
+# Training Grounds (offline, with bots): main menu -> TRAINING GROUNDS (mouse) -> what it offers
+55 key 0D 250        # Enter = Start
+64 cursor 300 309    # over TRAINING GROUNDS
+65 cursor 304 310
+68 click L 120
+70 cursor 1270 710
+80 pad 1000 80       # A: the first entry
+90 pad 1000 80       # A
+100 pad 1000 80      # A

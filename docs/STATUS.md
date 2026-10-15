@@ -7,6 +7,10 @@ Not released yet. The goal of the first release is the Gears of War 3 port's lev
 - Boots from the player's disc: logo movies, title screen with audio, main menu, Select Difficulty.
 - New campaign: the opening narration and the first level loading, checkpoint saves (tests/new_campaign.txt),
   60 fps.
+- Menus with keyboard, mouse and controller; keyboard and mouse prompts that follow the device, also in the
+  multiplayer lobby (tests/menu_kbm.txt, prompt_switch.txt).
+- Multiplayer over System Link between two games on one PC (tools/mp_test.ps1): party created and joined through the
+  System Link Browser, Warzone on Avalanche played by both (tests/mp_host.txt, mp_join.txt).
 - From the first working tree (gow2-port, 2026-10-10): the campaign's opening plays with combat and cover, saves and
   Continue, native mouse look, mouse in the menus, keyboard and mouse prompts (with Gears of War: Reloaded's art),
   effect and quality options.
