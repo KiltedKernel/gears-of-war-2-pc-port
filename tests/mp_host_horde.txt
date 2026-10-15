@@ -1,0 +1,16 @@
+# System Link Horde host: main menu -> HORDE (mouse) -> its lobby -> MATCH TYPE: System Link (pad), which opens the
+# System Link Browser -> Create Party (Y)
+55 key 0D 250        # Enter = Start
+64 cursor 300 355    # over HORDE
+65 cursor 304 356
+68 click L 120       # the Horde lobby
+70 cursor 1270 710   # the cursor out of the way (its hover would move the list's selection)
+80 pad 0002 80       # down: MATCH TYPE
+84 pad 1000 80       # A: its list (Public Xbox LIVE, Private Xbox LIVE, System Link, Local)
+89 pad 0001 80       # up: System Link
+94 pad 1000 80       # A: the System Link Browser
+100 pad 8000 80      # Y: Create Party
+128 pad 0001 80      # up: PLAY
+131 pad 1000 80      # A: start (the party follows)
+145 pad 0010 80      # Start: the pregame lobby's "select a map and press Start"
+160 pad 0010 80      # Start: start the match

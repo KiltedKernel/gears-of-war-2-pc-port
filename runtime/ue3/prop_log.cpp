@@ -1,7 +1,7 @@
 // GOW2_LOG_PROPS (development): every 2 s, log chosen properties and the current UnrealScript state of every live
 // instance of chosen classes, through UE3 reflection. Format: "Class:Prop,Prop;Class2:Prop" (subclasses included);
 // each value is shown as int/float (bools as 0/1); "Prop#" shows an array's count, "Prop+N" the dword N bytes in. The state: a State object referenced from the object's
-// StateFrame (UObject +20).
+// StateFrame (UObject +24 in Gears 2: after the 64-bit flags at +8 and the two hash links).
 // GOW2_WATCH_PROP=Class:Prop arms a write watchpoint (watch.cpp) on that property of the first live instance: each
 // hit names the guest function writing it.
 #include <stdafx.h>
@@ -21,22 +21,98 @@ namespace
 {
     std::string StateOf(uint32_t object)
     {
-        const uint32_t frame = ue3::Read32(object + 20);
-        if (!frame) return "-";
         static const uint32_t stateClass = ue3::FindClass("State");
-        std::string out;
-        for (uint32_t k = 0; k < 24; k++)
+        for (uint32_t at : { 24u, 20u, 28u })
         {
-            const uint32_t v = ue3::Read32(frame + 4 * k);
-            if (v > 0x40000000 && v < 0x60000000 && stateClass && ue3::ClassOf(v) == stateClass)
-                out += (out.empty() ? "" : "/") + ue3::ObjectName(v) + "@" + std::to_string(4 * k);
+            const uint32_t frame = ue3::Read32(object + at);
+            if (!frame) continue;
+            std::string out;
+            for (uint32_t k = 0; k < 24; k++)
+            {
+                const uint32_t v = ue3::Read32(frame + 4 * k);
+                if (v > 0x10000 && v < 0x80000000 && stateClass && ue3::ClassOf(v) == stateClass)
+                    out += (out.empty() ? "" : "/") + ue3::ObjectName(v) + "@" + std::to_string(4 * k);
+            }
+            if (!out.empty()) return out;
         }
-        return out.empty() ? "?" : out;
+        return "?";
     }
+}
+
+// GOW2_LOG_NETFIELDS=Class (development): the class's replicated fields in net index order (UClass::NetFields, a
+// native TArray found by its contents: UFunction / UProperty objects), to name the functions in a captured bunch
+void LogNetFields(const std::string& name)
+{
+    std::thread([name] {
+        while (!ue3::Init()) std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::seconds(20));
+        const uint32_t cls = ue3::FindClass(name.c_str());
+        const uint32_t function = ue3::FindClass("Function");
+        if (!cls || !function) { LOGFN("netfields: class {} not found", name); return; }
+        // UClass::NetFields (+108, after ClassReps at +FC): the class's own replicated fields; a field's net index
+        // counts the superclasses' first (Object ... Actor ... this class)
+        {
+            std::vector<uint32_t> chain;
+            for (uint32_t c = cls; c && chain.size() < 32; c = ue3::Read32(c + 60)) chain.push_back(c);
+            uint32_t base = 0;
+            for (auto it = chain.rbegin(); it != chain.rend(); ++it)
+            {
+                const uint32_t data = ue3::Read32(*it + 0x108), count = ue3::Read32(*it + 0x10C);
+                std::string line;
+                for (uint32_t i = 0; i < count && i < 512; i++)
+                    line += fmt::format(" {}:{}", base + i, ue3::ObjectName(ue3::Read32(data + 4 * i)));
+                LOGFN("netfields: {} ({} fields):{}", ue3::ObjectName(*it), count, line);
+                base += count;
+            }
+            LOGFN("netfields: {} in all", base);
+        }
+        for (uint32_t off = 0xF0; off < 0x130; off += 4)
+        {
+            const uint32_t data = ue3::Read32(cls + off), count = ue3::Read32(cls + off + 4), max = ue3::Read32(cls + off + 8);
+            if (!data || !count || count > 4096 || max < count || max > 8192) continue;
+            std::string line;
+            for (uint32_t i = 0; i < count; i++)
+            {
+                const uint32_t f = ue3::Read32(data + 4 * i);
+                line += fmt::format(" {}:{}({})", i, ue3::ObjectName(f), ue3::ObjectName(ue3::ClassOf(f)));
+            }
+            LOGFN("netfields: array +{:X} ({} of {}):{}", off, count, max, line);
+        }
+        for (uint32_t off = 64; off < 0x400; off += 4)
+        {
+            const uint32_t data = ue3::Read32(cls + off), count = ue3::Read32(cls + off + 4), max = ue3::Read32(cls + off + 8);
+            if (!data || count < 8 || count > 4096 || max < count) continue;
+            {
+                std::string first;
+                for (uint32_t i = 0; i < 4; i++)
+                {
+                    const uint32_t f = ue3::Read32(data + 4 * i);
+                    first += " " + ue3::ObjectName(f) + "(" + ue3::ObjectName(ue3::ClassOf(f)) + ")";
+                }
+                LOGFN("netfields: candidate +{:X} count {}:{}", off, count, first);
+            }
+            int functions = 0, objects = 0;
+            for (uint32_t i = 0; i < count; i++)
+            {
+                const uint32_t f = ue3::Read32(data + 4 * i);
+                const uint32_t c = f ? ue3::ClassOf(f) : 0;
+                if (!c) break;
+                objects++;
+                if (c == function) functions++;
+                else if (ue3::ObjectName(c).find("Property") == std::string::npos) { objects = -1; break; }
+            }
+            if (objects < int(count) || !functions) continue;
+            std::string line;
+            for (uint32_t i = 0; i < count; i++)
+                line += fmt::format(" {}:{}", i, ue3::ObjectName(ue3::Read32(data + 4 * i)));
+            LOGFN("netfields: {} +{:X}, {} fields:{}", name, off, count, line);
+        }
+    }).detach();
 }
 
 void Start()
 {
+    if (const char* nf = getenv("GOW2_LOG_NETFIELDS")) LogNetFields(nf);
     const char* spec = getenv("GOW2_LOG_PROPS");
     const char* watchSpec = getenv("GOW2_WATCH_PROP");
     if (!spec && !watchSpec) return;

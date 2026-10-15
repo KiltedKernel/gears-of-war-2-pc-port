@@ -1,8 +1,11 @@
 // GoW2 game patches, as mid-asm hooks placed by the recompiler (config/GOW2.toml [[midasm_hook]]).
 //
 // Frame rate unlock (from Xenia's game-patches "Unlock FPS" by illusion & boma, same addresses in this XEX):
-//  - 824A2E94: the engine's max tick rate getter (824A2E78) loads its 30 fps cap from this+1284; skipped, it returns
-//    the 0.0 already in f1, meaning "no cap"
+//  - 824A2E94: the engine's max tick rate getter (824A2E78) loads its 30 fps cap from this+1284; it returns the
+//    player's frame rate instead. (Returning 0.0, "no cap", as the original patch does, lets the engine tick as fast as
+//    the CPU allows whenever it does not present a frame, as while loading: its network tick then ran at ~1000 Hz and
+//    a co-op joiner's ClientSetViewTarget / ServerVerifyViewTarget ping-pong filled the connection, so the host never
+//    replicated a single actor to it.)
 //  - 8298CFB0: the D3D maps the title's presentation interval TWO to hardware value 2 (present every 2nd vblank);
 //    1 presents every vblank. The vblank rate itself follows gow2.ini frame_rate (xe_glue).
 // UE3 times the game with the performance counter, so game speed does not change with the frame rate.
@@ -15,9 +18,11 @@ namespace
     bool Unlocked() { return settings::Get().frameRate > 30; }
 }
 
-bool GoW2MaxTickRateHook(PPCRegister& r3)
+bool GoW2MaxTickRateHook(PPCRegister& r3, PPCRegister& f1)
 {
-    return Unlocked();   // true: skip the load of the cap
+    if (!Unlocked()) return false;                  // the game's own 30 fps cap
+    f1.f64 = double(settings::Get().frameRate);     // the cap is the player's frame rate
+    return true;                                    // skip the load of the console's cap
 }
 
 void GoW2PresentIntervalHook(PPCRegister& r11)

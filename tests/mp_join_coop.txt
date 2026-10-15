@@ -1,0 +1,54 @@
+# System Link co-op joiner: main menu -> CO-OP CAMPAIGN -> JOIN CO-OP CAMPAIGN -> the first campaign listed
+55 key 0D 250
+64 cursor 300 286
+65 cursor 304 287
+68 click L 120
+70 cursor 1270 710
+76 pad 0002 80       # down: JOIN CO-OP CAMPAIGN
+79 pad 1000 80       # A
+90 pad 4000 80       # X: refresh, if it is a browser
+98 pad 1000 80       # A: join the first one listed
+200 pad 1000 80
+204 trig R 200
+210 pad 1000 80
+214 trig R 200
+220 pad 1000 80
+224 trig R 200
+230 pad 1000 80
+234 trig R 200
+240 pad 1000 80
+244 trig R 200
+250 pad 1000 80
+254 trig R 200
+260 pad 1000 80
+264 trig R 200
+270 pad 1000 80
+274 trig R 200
+280 pad 1000 80
+284 trig R 200
+290 pad 1000 80
+294 trig R 200
+300 pad 1000 80
+304 trig R 200
+310 pad 1000 80
+314 trig R 200
+320 pad 1000 80
+324 trig R 200
+330 pad 1000 80
+334 trig R 200
+340 pad 1000 80
+344 trig R 200
+350 pad 1000 80
+354 trig R 200
+360 pad 1000 80
+364 trig R 200
+370 pad 1000 80
+374 trig R 200
+380 pad 1000 80
+384 trig R 200
+390 pad 1000 80
+394 trig R 200
+400 pad 1000 80
+404 trig R 200
+410 pad 1000 80
+414 trig R 200

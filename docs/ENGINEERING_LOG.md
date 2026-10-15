@@ -579,3 +579,27 @@ Done: runtime fork, data imports, file system (extracted disc folder), memory mo
   stock ones, and a switch rewrites every copy that still holds one of the two pictures.
 - Gears 2 and Gears 3 games never mix: each port's protocol has its own magic, and a hub answers the other game's
   Hello or launcher query with a Reject in that game's magic ("this is for Gears of War 3, not Gears of War 2").
+
+## 2026-10-15: campaign co-op over System Link (the tick-rate cap)
+
+- Versus, Horde and the party all worked over System Link, but in campaign co-op the joiner sat in PlayerWaiting with
+  a fixed camera, and its world held no pawns at all (pos_log), while the host had Marcus, AI Dom and Carmine.
+- Traffic (GOW2_NET_STATS=1: datagrams and bytes per virtual port every 10 s): for ~110 s after loading, ~1000
+  datagrams/s each way (46 B from the host, 16 B back), then a normal idle ~10/s. A Versus match plays at ~30/s.
+- Decoding the packets (GOW2_NET_DUMP=N logs every Nth payload; UE3 packets after the 2-byte VDP length: 14-bit
+  packet id, acks, bunches with control/open/close/reliable bits, a 10-bit channel, 10-bit sequence, 3-bit type and a
+  SerializeInt(4096) length, MaxPacket being 512) and naming the actor-channel fields (GOW2_LOG_NETFIELDS=GearPC_SP:
+  UClass::NetFields at +108, after ClassReps at +FC; 286 fields through Actor, Controller, PlayerController, GearPC):
+  the host's ClientSetViewTarget (field 85) and the joiner's ServerVerifyViewTarget (86) answered each other, the
+  usual UE3 exchange while a client cannot resolve its view target: 110,000 times. AskForPawn / GivePawn ran, but the
+  pawn never replicated: the ping-pong held the connection at its 10 KB/s LAN rate, so the server never had room to
+  replicate actors.
+- The rate came from the frame-rate unlock: its hook made the engine's max tick rate getter return 0.0 ("no cap", as
+  Xenia's game patch does). Rendering is then paced by vblanks, but whenever no frame is presented (loading) the
+  engine ticks, and its net driver with it, as fast as the CPU allows. With GOW2_FRAME_RATE=30 (no unlock) the
+  ping-pong ran at ~60/s for 20 s and the joiner got its pawns. The hook now returns the player's frame rate as the
+  cap (registers r3 and f1): co-op at 60 fps works: the joiner plays Dom (GearPawn_COGDom_1) beside the host's Marcus
+  from the opening through Skip Training into the hospital (tests/mp_host_coop.txt, mp_join_coop.txt).
+- Also: game sockets get a 4 MB receive buffer (a loading title does not read for seconds), and a datagram larger
+  than the protocol's payload is logged instead of dropped silently. prop_log finds Gears 2's StateFrame (+24) and
+  states anywhere in memory.

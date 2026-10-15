@@ -36,7 +36,9 @@ shows every party on the server, and the game shows who comes and goes.
 
 ### Then, in the game
 
-On the main menu pick **Multiplayer**, then set **Match Type** to **System Link**: the System Link Browser opens. One
+For campaign co-op: **Co-op Campaign** > **Host Co-op Campaign** (the other player picks **Join Co-op Campaign** and
+the campaign from the list), then **Launch Campaign**; the second player is Dom. For Versus and Horde: on the main
+menu pick **Multiplayer** (or **Horde**), then set **Match Type** to **System Link**: the System Link Browser opens. One
 of you picks **Create Party** (Y); the others pick **Refresh** (X) and join the party from the list (A). The party
 leader chooses the game type and options in the lobby and picks **Play**, then a map, and starts the match; the
 party follows. The System Link Browser is also on the right trigger in a System Link lobby.
@@ -121,7 +123,8 @@ answers at). See tests/README.md.
 
 ## Status
 
-Verified on one PC (tools/mp_test.ps1, lan): the second game finds the first, joins its System Link party from the
-System Link Browser, and both play Warzone on Avalanche (one COG, one Locust). Still to verify for Gears 2: the other
-setups (samepc, server, codes), Horde and campaign co-op over System Link, two separate PCs, a real router's UPnP. No
+Verified on one PC (tools/mp_test.ps1): the second game finds the first (lan, samepc: two copies of one install, and
+on a gow2_server), joins its System Link party from the System Link Browser, and both play Warzone on Avalanche;
+Horde over System Link (wave 1 on both); campaign co-op (Co-op Campaign > Host / Join Co-op Campaign: the second
+player plays Dom). Not verified yet: two separate PCs, a real router's UPnP. No
 voice chat (the game is told there is no headset). Public and Private Xbox LIVE need Xbox LIVE; use System Link.

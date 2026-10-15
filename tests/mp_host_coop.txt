@@ -1,0 +1,11 @@
+# System Link co-op host: main menu -> CO-OP CAMPAIGN (mouse) -> HOST CO-OP CAMPAIGN (the campaign lobby: Co-op Mode
+# System Link, Act I chapter 1) -> once the second player is in, LAUNCH CAMPAIGN
+55 key 0D 250
+64 cursor 300 286    # over CO-OP CAMPAIGN
+65 cursor 304 287
+68 click L 120
+70 cursor 1270 710
+76 pad 1000 80       # A: HOST CO-OP CAMPAIGN
+120 pad 1000 80      # A: LAUNCH CAMPAIGN
+335 trig L 300       # CHOOSE PATH: Skip Training (left trigger)
+345 trig L 300

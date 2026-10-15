@@ -133,6 +133,10 @@ namespace
                 if (k != s && o.vport == port) return false;   // WSAEADDRINUSE
         sockaddr_in a{}; a.sin_family = AF_INET; a.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
         if (bind(h, (sockaddr*)&a, sizeof(a)) != 0) return false;
+        // the title does not read while it loads a level (seconds), and the other players keep sending (a co-op host
+        // replicates its whole world to a joiner): room for that instead of Windows' small default, which drops it
+        int buffer = 4 << 20;
+        setsockopt(h, SOL_SOCKET, SO_RCVBUF, (const char*)&buffer, sizeof(buffer));
         int len = sizeof(a);
         getsockname(h, (sockaddr*)&a, &len);
         v.vport = port; v.hostPort = ntohs(a.sin_port); v.boundIp = ip;

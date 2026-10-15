@@ -174,6 +174,7 @@ namespace
         // environment overrides for testing
         if (const char* v = getenv("GOW2_MOUSE_SENS")) s.mouseSensitivity = float(atof(v));
         if (getenv("GOW2_NO_AUDIO")) s.audio = false;
+        if (const char* v = getenv("GOW2_FRAME_RATE")) s.frameRate = std::clamp(atoi(v), 30, 360);
         if (s.resolutionScale == 0)
         {
             // auto: the scale nearest the monitor's height in 720-line steps (1080 -> 2: rendered above, scaled down)

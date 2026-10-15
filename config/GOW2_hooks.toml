@@ -4,7 +4,7 @@
 [[midasm_hook]]
 name = "GoW2MaxTickRateHook"
 address = 0x824A2E94
-registers = ["r3"]
+registers = ["r3", "f1"]
 jump_address_on_true = 0x824A2E98
 
 [[midasm_hook]]

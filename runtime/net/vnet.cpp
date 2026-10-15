@@ -27,6 +27,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <map>
 #include <optional>
 #include <regex>
 #include <thread>
@@ -104,6 +105,39 @@ namespace
     {
         LOGFN("net: [{}] {}", title, Redact(text));
         portgpu::ShowNotice(title.c_str(), text.c_str(), seconds);
+    }
+
+    // GOW2_NET_STATS=1: datagrams and bytes per virtual port and direction, logged every 10 s
+    struct PortStats { uint64_t sent = 0, sentBytes = 0, received = 0, receivedBytes = 0; };
+    std::mutex g_statsMutex;
+    std::map<uint16_t, PortStats> g_stats;
+    // GOW2_NET_DUMP=N: the payload of every Nth datagram each way (hex, first 64 bytes)
+    void Dump(uint16_t port, bool sent, const void* data, int bytes)
+    {
+        static const int every = getenv("GOW2_NET_DUMP") ? std::max(1, atoi(getenv("GOW2_NET_DUMP"))) : 0;
+        if (!every) return;
+        static std::atomic<uint64_t> n[2];
+        if (n[sent ? 1 : 0]++ % every) return;
+        std::string hex;
+        for (int i = 0; i < std::min(bytes, 64); i++) hex += fmt::format("{:02X}", ((const uint8_t*)data)[i]);
+        LOGFN("net: {} port {} ({} B) {}", sent ? "sent" : "got ", port, bytes, hex);
+    }
+
+    void Count(uint16_t port, bool sent, int bytes)
+    {
+        static const bool on = getenv("GOW2_NET_STATS") != nullptr;
+        if (!on) return;
+        std::lock_guard lock(g_statsMutex);
+        PortStats& s = g_stats[port];
+        if (sent) { s.sent++; s.sentBytes += bytes; } else { s.received++; s.receivedBytes += bytes; }
+        static auto last = std::chrono::steady_clock::now();
+        if (std::chrono::steady_clock::now() - last < std::chrono::seconds(10)) return;
+        last = std::chrono::steady_clock::now();
+        std::string line;
+        for (const auto& [port, x] : g_stats)
+            line += fmt::format(" {}: sent {} ({} B) received {} ({} B);", port, x.sent, x.sentBytes, x.received, x.receivedBytes);
+        LOGFN("net: traffic in 10 s:{}", line);
+        g_stats.clear();
     }
 
     sockaddr_in Hub() { std::lock_guard lock(g_hubMutex); return g_hub; }
@@ -508,6 +542,8 @@ namespace
                 if (n >= int(sizeof(Data)) && g_deliver)
                 {
                     const Data& d = *(Data*)buf.data();
+                    Count(d.dstPort, false, n - int(sizeof(Data)));
+                    Dump(d.dstPort, false, buf.data() + sizeof(Data), n - int(sizeof(Data)));
                     g_deliver(d.srcVip, d.srcPort, d.dstPort, buf.data() + sizeof(Data), n - int(sizeof(Data)));
                 }
                 break;
@@ -532,7 +568,15 @@ bool WaitReady(int milliseconds)
 void Send(uint32_t dstVip, uint16_t srcPort, uint16_t dstPort, const void* data, int length)
 {
     const uint32_t vip = g_vip;
-    if (g_socket == INVALID_SOCKET || !vip || length < 0 || length > kMaxPayload) return;
+    if (g_socket == INVALID_SOCKET || !vip || length < 0) return;
+    if (length > kMaxPayload)
+    {
+        static int logged = 0;
+        if (logged++ < 10) LOGFN_WARNING("net: datagram of {} bytes to port {} is larger than {}: not sent", length, dstPort, kMaxPayload);
+        return;
+    }
+    Count(srcPort, true, length);
+    Dump(srcPort, true, data, length);
     char buf[sizeof(Data) + kMaxPayload];
     Data d{ MakeHeader(kData), vip, dstVip, srcPort, dstPort };
     memcpy(buf, &d, sizeof(d));
